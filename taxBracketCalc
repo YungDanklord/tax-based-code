@@ -1,0 +1,75 @@
+def taxBracketCalc(taxableIncome, filerStatus):
+    #initializing the final payment
+    totalPayment = 0
+
+    #initializing the highest tax bracket and its index based on taxableIncome
+    highestBracket = 0
+    numBracket = 0
+    
+    #creating the tax brackets in arrays based on 2021 US brackets
+    single              =   [0, 9950, 40525,  86375, 164925, 209425, 523600] 
+    marriedJointly      =   [0, 19900, 81050, 172750, 329850, 418850, 628300] 
+    headOfHouseholds    =   [0, 14200, 54200,  86350, 164900, 209400, 523600]
+
+    #creating the appropriate tax rates in an array based on 2021 US brackets
+    taxRates             =      [.1, .12,  .22, .24, .32, .35, .37]
+    
+    #initializing the appropriate tax bracket used to calculate the total payment, based on filing status
+    filerBracket = []
+
+    #finding the right filing status giving the abbreviation passed to this function
+    if filerStatus == "s":
+        filerBracket = single
+
+    elif filerStatus == "m":
+        filerBracket = marriedJointly
+
+    elif filerStatus == "h":
+        filerBracket = headOfHouseholds
+    
+    # finding the the highest tax bracket and its index based on taxableIncome. to do this, i set a variable
+    #(temp) equal to zero. I compare taxableIncome to it and the lowest value in the filerBracket array. If it
+    # is larger than both, I change temp to the lowest value in the array and move to the next value. This lets temp
+    # be equal to the previous value while running through the array one by one. I know I found the correct tax bracket
+    # when taxableIncome is higher than the previous value (the bracket lower than it) but lower than the current value
+    # (the bracket it is occupying). When all is said and done, it sets numBracket to the highest bracket's index
+    # and highestBracket to its value. If taxableIncome is greater than every tax bracket, then... cont...
+    temp = 0
+    for bracketIndex in range(0, len(filerBracket)):
+      if taxableIncome <= filerBracket[bracketIndex] and taxableIncome >= temp:
+        highestBracket = filerBracket[bracketIndex]
+        temp = filerBracket[bracketIndex]
+        numBracket = bracketIndex
+      temp = filerBracket[bracketIndex]
+    
+    #however, if taxableIncome is higher than all the tax brackets, then this if statement applies. It compare taxableIncome
+    #to the highest tax bracket and if it is, sets numBracket to the highest bracket's index and highestBracket to its value  
+    if taxableIncome > filerBracket[-1]:
+      numBracket = len(single)
+      highestBracket = filerBracket[-1]             
+    
+    #minor checks to see if all is well
+    
+    #print(numBracket, highestBracket)
+    #print(filerBracket)
+    #print(taxableIncome - filerBracket[numBracket])
+    
+    
+    #here i calculate the portion of taxable income taxed at the highest bracket and add it to totalPayment. this simplifies
+    #the adding proccess for later
+    topBracketTax = (taxableIncome - filerBracket[numBracket-1]) * taxRates[numBracket-1]
+    totalPayment += topBracketTax
+    
+    #print(totalPayment, taxableIncome, "h")
+    
+    # here are all the portions of taxableIncome that are taxed in full wrt its tax bracket. taking the value of the bracket,
+    # subtracting it by its bracket underneath to find its range, multiplying it by its tax rate and adding it to totalPayment
+    for bracketIndex in range(1, numBracket):
+     totalPayment += (filerBracket[bracketIndex] - filerBracket[bracketIndex-1]) * taxRates[bracketIndex-1]
+     #print(filerBracket[bracketIndex], taxRates[bracketIndex-1])
+     
+    #rounding to the nearest dollar 
+    totalPayment = round(totalPayment,0)
+    return totalPayment
+
+
